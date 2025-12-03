@@ -6,8 +6,11 @@ import { Link } from 'expo-router';
 
 const LoginScreen = () => {
   return (
-    <SafeAreaView className="flex-1 items-center justify-center bg-background-light dark:bg-background-dark p-4">
-      <ScrollView contentContainerClassName="w-full max-w-sm space-y-8">
+    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+      <ScrollView
+        contentContainerClassName="flex-grow justify-center p-6"
+        keyboardShouldPersistTaps="handled"
+      >
         <View className="items-center space-y-2">
           <View className="w-12 h-12 items-center justify-center rounded-xl bg-primary/20">
             <MaterialIcons name="biotech" size={32} className="text-primary" />
@@ -16,7 +19,7 @@ const LoginScreen = () => {
           <Text className="text-text-light/70 dark:text-text-dark/70">Log in to SSD Data Collector</Text>
         </View>
 
-        <View className="w-full gap-4">
+        <View className="w-full gap-4 pt-8">
           <View>
             <Text className="text-sm font-medium pb-2 text-text-light dark:text-text-dark/90">Email Address</Text>
             <TextInput
@@ -46,7 +49,7 @@ const LoginScreen = () => {
           </View>
         </View>
 
-        <View className="gap-4">
+        <View className="gap-4 pt-4">
           <Link href="/home" asChild>
             <TouchableOpacity className="h-12 w-full items-center justify-center rounded-lg bg-primary">
               <Text className="text-base font-semibold text-white">Log In</Text>
@@ -58,9 +61,16 @@ const LoginScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <Text className="text-center text-sm text-text-light/70 dark:text-text-dark/70">
-          Don't have an account? <TouchableOpacity><Text className="font-semibold text-primary">Sign Up</Text></TouchableOpacity>
-        </Text>
+        <View className="flex-row justify-center gap-1 pt-4">
+          <Text className="text-center text-sm text-text-light/70 dark:text-text-dark/70">
+            Don't have an account?
+          </Text>
+          <Link href={'/sign-up'} asChild>
+            <TouchableOpacity>
+              <Text className="font-semibold text-primary">Sign Up</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
