@@ -1,28 +1,55 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { useAuth } from '../../context/AuthContext'; // Import hook
+import * as SecureStore from 'expo-secure-store'; // Make sure this is imported
+import { Platform } from 'react-native';
 
 const LoginScreen = () => {
-  return (
-    <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-      <ScrollView
-        contentContainerClassName="flex-grow justify-center p-6"
-        keyboardShouldPersistTaps="handled"
-      >
-        <View className="items-center space-y-2">
-          <View className="w-12 h-12 items-center justify-center rounded-xl bg-primary/20">
-            <MaterialIcons name="biotech" size={32} className="text-primary" />
-          </View>
-          <Text className="text-3xl font-bold text-text-light dark:text-text-dark">Welcome Back</Text>
-          <Text className="text-text-light/70 dark:text-text-dark/70">Log in to SSD Data Collector</Text>
-        </View>
+  const { signIn } = useAuth(); // Get signIn function
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  React.useEffect(() => {
+    const clearStorage = async () => {
+      if (Platform.OS !== 'web') {
+        await SecureStore.deleteItemAsync('userToken');
+        await SecureStore.deleteItemAsync('userData');
+        console.log("🧹 Storage Cleared! You can now login fresh.");
+      }
+    };
+    clearStorage();
+  }, []);
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter email and password");
+      return;
+    }
 
-        <View className="w-full gap-4 pt-8">
+    setIsSubmitting(true);
+    try {
+      await signIn(email, password);
+      // AuthContext handles the redirect to /home
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Invalid credentials";
+      Alert.alert("Login Failed", errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <SafeAreaView className="flex-1 items-center justify-center bg-background-light dark:bg-background-dark p-4">
+      <ScrollView contentContainerClassName="w-full max-w-sm space-y-8">
+        {/* ... Header ... */}
+        
+        <View className="w-full gap-4">
           <View>
             <Text className="text-sm font-medium pb-2 text-text-light dark:text-text-dark/90">Email Address</Text>
             <TextInput
+              value={email}
+              onChangeText={setEmail}
               className="w-full rounded-lg border border-border-light bg-white dark:border-border-dark dark:bg-background-dark h-12 p-3 text-text-light dark:text-text-dark"
               placeholder="Enter your email"
               keyboardType="email-address"
@@ -30,46 +57,29 @@ const LoginScreen = () => {
             />
           </View>
           <View>
-            <View className="flex-row justify-between items-baseline pb-2">
-              <Text className="text-sm font-medium text-text-light dark:text-text-dark/90">Password</Text>
-              <TouchableOpacity>
-                <Text className="text-sm font-medium text-primary">Forgot Password?</Text>
-              </TouchableOpacity>
-            </View>
-            <View className="flex-row items-center rounded-lg border border-border-light bg-white dark:border-border-dark dark:bg-background-dark">
-              <TextInput
-                className="flex-1 h-12 p-3 text-text-light dark:text-text-dark"
-                placeholder="Enter your password"
-                secureTextEntry
-              />
-              <TouchableOpacity className="px-3">
-                <MaterialIcons name="visibility" size={24} className="text-text-light/60 dark:text-text-dark/60" />
-              </TouchableOpacity>
-            </View>
+            <Text className="text-sm font-medium pb-2 text-text-light dark:text-text-dark/90">Password</Text>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              className="w-full rounded-lg border border-border-light bg-white dark:border-border-dark dark:bg-background-dark h-12 p-3 text-text-light dark:text-text-dark"
+              placeholder="Enter your password"
+              secureTextEntry
+            />
           </View>
         </View>
 
-        <View className="gap-4 pt-4">
-          <Link href="/home" asChild>
-            <TouchableOpacity className="h-12 w-full items-center justify-center rounded-lg bg-primary">
+        <View className="gap-4">
+          <TouchableOpacity 
+            onPress={handleLogin}
+            disabled={isSubmitting}
+            className={`h-12 w-full items-center justify-center rounded-lg ${isSubmitting ? 'bg-gray-500' : 'bg-primary'}`}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator color="white" />
+            ) : (
               <Text className="text-base font-semibold text-white">Log In</Text>
-            </TouchableOpacity>
-          </Link>
-          <TouchableOpacity className="h-12 w-full flex-row items-center justify-center gap-3 rounded-lg border border-border-light bg-white dark:border-border-dark dark:bg-background-dark">
-            <MaterialIcons name="fingerprint" size={24} className="text-text-light dark:text-text-dark" />
-            <Text className="text-base font-semibold text-text-light dark:text-text-dark">Log in with Biometrics</Text>
+            )}
           </TouchableOpacity>
-        </View>
-
-        <View className="flex-row justify-center gap-1 pt-4">
-          <Text className="text-center text-sm text-text-light/70 dark:text-text-dark/70">
-            Don't have an account?
-          </Text>
-          <Link href={'/sign-up'} asChild>
-            <TouchableOpacity>
-              <Text className="font-semibold text-primary">Sign Up</Text>
-            </TouchableOpacity>
-          </Link>
         </View>
       </ScrollView>
     </SafeAreaView>

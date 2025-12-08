@@ -6,16 +6,37 @@ export interface Patient {
   name: string;
   age: number;
   gender: string;
-  initial_ssd_type?: string;
-  last_session_date?: string; // We'll compute this later
+  primary_language: string;
+  initial_ssd_type: string;
+  createdAt?: string;
 }
+
+export interface SessionSummary {
+  id: number;
+  session_date: string;
+  final_session_diagnosis: string;
+  upload_status: string;
+  createdAt: string;
+  recordings?: any[];
+}
+
+// Helper to ensure headers are always clean
+const getHeaders = (token: string) => ({
+  'Authorization': `Bearer ${token.trim()}`, // 🛡️ FIX: Added .trim() here
+  'Content-Type': 'application/json'
+});
 
 export const getPatients = async (token: string): Promise<Patient[]> => {
   try {
     const response = await fetch(`${API_URL}/patients`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+      headers: getHeaders(token)
     });
-    if (!response.ok) throw new Error('Failed to fetch patients');
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch patients');
+    }
+    
     return await response.json();
   } catch (error) {
     console.error("Get Patients Error:", error);
@@ -23,14 +44,11 @@ export const getPatients = async (token: string): Promise<Patient[]> => {
   }
 };
 
-export const createPatient = async (patientData: any, token: string) => {
+export const createPatient = async (patientData: Omit<Patient, 'id'>, token: string) => {
   try {
     const response = await fetch(`${API_URL}/patients`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: getHeaders(token),
       body: JSON.stringify(patientData)
     });
     
@@ -41,4 +59,18 @@ export const createPatient = async (patientData: any, token: string) => {
     console.error("Create Patient Error:", error);
     throw error;
   }
+};
+
+export const getPatientById = async (id: number, token: string): Promise<Patient> => {
+  const response = await fetch(`${API_URL}/patients/${id}`, {
+    headers: getHeaders(token)
+  });
+  return await response.json();
+};
+
+export const getPatientSessions = async (id: number, token: string): Promise<SessionSummary[]> => {
+  const response = await fetch(`${API_URL}/patients/${id}/sessions`, {
+    headers: getHeaders(token)
+  });
+  return await response.json();
 };

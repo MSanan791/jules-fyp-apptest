@@ -5,6 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { uploadSession } from '../../services/SessionService';
 import { currentSession } from '../../store/SessionStore'; // Correct lowercase import
+import { getToken } from '../../services/AuthService';
 
 const ReviewUploadScreen = () => {
   const router = useRouter();
@@ -15,7 +16,13 @@ const ReviewUploadScreen = () => {
     setIsUploading(true);
     try {
       // In a real app, get this from your Auth Context
-      const token = "YOUR_JWT_TOKEN_HERE"; 
+      const token = await getToken();
+      
+      if (!token) {
+        Alert.alert("Error", "Authentication failed. Please login again.");
+        setIsUploading(false);
+        return;
+      }
       
       const { patientId, recordings } = currentSession;
 

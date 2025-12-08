@@ -12,8 +12,14 @@ const SessionSetupScreen = () => {
     ready: true,
   });
 
-  const toggleCheckbox = (key) => {
-    setChecklist((prev) => ({ ...prev, [key]: !prev[key] }));
+  interface Checklist {
+    quietEnv: boolean;
+    consent: boolean;
+    ready: boolean;
+  }
+
+  const toggleCheckbox = (key: keyof Checklist): void => {
+    setChecklist((prev: Checklist) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const allChecked = Object.values(checklist).every(Boolean);
@@ -74,7 +80,14 @@ const SessionSetupScreen = () => {
   );
 };
 
-const CheckboxItem = ({ label, value, onValueChange, isLast = false }) => (
+interface CheckboxItemProps {
+  label: string;
+  value: boolean;
+  onValueChange: () => void;
+  isLast?: boolean;
+}
+
+const CheckboxItem = ({ label, value, onValueChange, isLast = false }: CheckboxItemProps) => (
   <TouchableOpacity
     onPress={onValueChange}
     className={`flex-row items-center py-4 ${!isLast ? 'border-b border-gray-200 dark:border-zinc-700' : ''}`}
