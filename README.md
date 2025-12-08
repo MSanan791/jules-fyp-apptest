@@ -3,7 +3,7 @@
 A React Native (Expo) mobile application designed for Speech Therapists (SLPs) to collect high-quality audio datasets for Speech Sound Disorder (SSD) detection. The app facilitates patient management, session recording (52 specific words), and secure atomic uploads to the cloud.
 
 ## 📱 Technical Stack
-
+```
 * **Framework:** [Expo](https://expo.dev/) (React Native)
 * **Language:** [TypeScript](https://www.typescriptlang.org/)
 * **Styling:** [NativeWind](https://www.nativewind.dev/) (Tailwind CSS)
@@ -11,7 +11,7 @@ A React Native (Expo) mobile application designed for Speech Therapists (SLPs) t
 * **Audio:** `expo-av`
 * **Storage:** `expo-secure-store` (Auth tokens), `expo-file-system`
 * **Navigation:** `expo-router` (File-based routing)
-
+```
 ## 🚀 Prerequisites
 
 * [Node.js](https://nodejs.org/) (LTS recommended)
@@ -63,6 +63,7 @@ ssd-data-collector/
 ├── services/               # API integrations (Auth, Patient, Session)
 ├── store/                  # State management (SessionStore)
 └── assets/                 # Images and fonts
+```
 ✨ Key Features
 Secure Authentication: JWT-based login with token storage via SecureStore.
 
