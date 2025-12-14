@@ -17,6 +17,17 @@ A React Native (Expo) mobile application designed for Speech Therapists (SLPs) t
 * [Node.js](https://nodejs.org/) (LTS recommended)
 * [Expo Go](https://expo.dev/client) app installed on your physical device (iOS/Android) or an Emulator/Simulator.
 
+## 🔌 API Endpoints
+
+For detailed documentation on all available endpoints, request bodies, and response examples, please refer to the full API Documentation:
+
+👉 **[View Complete API Documentation](./API_DOCUMENTATION.md)**
+
+### Quick Overview
+* **Auth:** `POST /api/auth/login`
+* **Patients:** `GET /api/patients`, `POST /api/patients`
+* **Sessions:** `POST /api/sessions/finalize` (Atomic Upload)
+
 ## 🛠️ Installation & Setup
 
 1.  **Clone the repository** (if not already done).
