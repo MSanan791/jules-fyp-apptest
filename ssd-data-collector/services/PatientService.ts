@@ -1,5 +1,5 @@
 // Replace with your PC's IP
-const API_URL = 'http://192.168.18.32:3000/api'; 
+const API_URL = 'http://20.255.56.194:3000/api'; 
 
 export interface Patient {
   id: number;

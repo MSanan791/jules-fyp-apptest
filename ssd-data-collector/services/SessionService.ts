@@ -11,7 +11,7 @@ export interface RecordingData {
 
 // ⚠️ REPLACE THIS with your PC's local IP address (e.g., 192.168.1.5)
 // Do NOT use 'localhost' - the phone/emulator sees 'localhost' as itself!
-const API_URL = 'http://192.168.18.32:3000/api/sessions/finalize';
+const API_URL = 'http://20.255.56.194:3000/api/sessions/finalize';
 
 export const uploadSession = async (
   patientId: number,

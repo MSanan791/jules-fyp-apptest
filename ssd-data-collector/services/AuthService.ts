@@ -2,7 +2,7 @@ import * as SecureStore from 'expo-secure-store'; // Securely store token
 import { Platform } from 'react-native';
 
 // ⚠️ REPLACE WITH YOUR PC IP
-const API_URL = 'http://192.168.18.32:3000/api/auth'; 
+const API_URL = 'http://20.255.56.194:3000/api/auth'; 
 
 interface LoginRequest {
     email: string;
