@@ -5,7 +5,7 @@ This document details the RESTful API endpoints for the SSD Data Collector appli
 ## 🔗 Base URL
 All endpoints are prefixed with `/api`.
 * **Local Development:** `http://<YOUR_IP>:3000/api`
-* **Production:** `https://your-production-url.com/api`
+* **Production:** `http://20.255.56.194/api`
 
 ## 🔐 Authentication
 Most endpoints require a valid **JSON Web Token (JWT)**.
