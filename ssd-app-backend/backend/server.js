@@ -37,10 +37,11 @@ app.use((err, req, res, next) => {
 // Sync database and start server
 db.sequelize.sync()
   .then(() => {
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server listening on port ${PORT}`);
       console.log(`Database connected and synchronized`);
       console.log(`API available at http://localhost:${PORT}/api`);
+      console.log(`API available on network at http://172.17.60.64:${PORT}/api`);
     });
   })
   .catch(err => {

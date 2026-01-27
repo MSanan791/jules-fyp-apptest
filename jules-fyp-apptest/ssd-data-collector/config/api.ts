@@ -10,8 +10,8 @@ const DEPLOYED_BACKEND = 'http://20.255.56.194:3000';
 
 // Option 2: Use local backend (for development)
 // Replace with your computer's local IP address (e.g., 'http://192.168.1.100:3000')
-// Your current local IP appears to be: 172.17.60.64
-const LOCAL_BACKEND = 'http://172.17.60.64:3000';
+// Your current local IP appears to be: 10.77.107.12
+const LOCAL_BACKEND = 'http://10.77.107.12:3000';
 
 // Set to true to use local backend on mobile, false to use deployed backend
 // IMPORTANT: When using local backend, make sure:
