@@ -244,7 +244,7 @@ const LoginScreen = () => {
               </View>
             </View>
 
-            {/* Login Button */}
+          {/* Login Button */}
             <TouchableOpacity
               onPress={handleLogin}
               disabled={loading}
@@ -274,16 +274,6 @@ const LoginScreen = () => {
               )}
             </TouchableOpacity>
 
-            {/* Forgot Password */}
-            <TouchableOpacity style={{ marginTop: 20, alignItems: 'center' }}>
-              <Text style={{
-                color: colors.primary,
-                fontSize: 14,
-                fontFamily: fonts.medium,
-              }}>
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
           </View>
 
           {/* Sign Up Link */}

@@ -6,10 +6,111 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 import { getColors, getShadows } from '../../theme/colors';
 import { fonts } from '../../theme/fonts';
+import { register as registerUser } from '../../services/AuthService';
+import { useAuth } from '../../context/AuthContext';
+
+type InputFieldProps = {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  icon: keyof typeof MaterialIcons.glyphMap;
+  error?: string;
+  secureTextEntry?: boolean;
+  keyboardType?: 'default' | 'email-address';
+  autoCapitalize?: 'none' | 'words';
+  colors: ReturnType<typeof getColors>;
+  shadowStyles: ReturnType<typeof getShadows>;
+  showPassword?: boolean;
+  onTogglePasswordVisibility?: () => void;
+};
+
+const renderInputField = ({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  icon,
+  error,
+  secureTextEntry = false,
+  keyboardType = 'default',
+  autoCapitalize = 'none',
+  colors,
+  shadowStyles,
+  showPassword,
+  onTogglePasswordVisibility,
+}: InputFieldProps) => (
+  <View style={{ marginBottom: 20 }}>
+    <Text style={{
+      fontSize: 14,
+      fontFamily: fonts.semiBold,
+      color: colors.text,
+      marginBottom: 10,
+    }}>
+      {label}
+    </Text>
+    <View style={[{
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surfaceSecondary,
+      borderRadius: 14,
+      borderWidth: 2,
+      borderColor: error ? colors.error : value ? colors.primary : colors.border,
+      overflow: 'hidden',
+    }, value && !error && shadowStyles.sm]}>
+      <View style={{ paddingLeft: 16 }}>
+        <MaterialIcons name={icon} size={22} color={error ? colors.error : value ? colors.primary : colors.textTertiary} />
+      </View>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={colors.textTertiary}
+        secureTextEntry={secureTextEntry && !showPassword}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        style={{
+          flex: 1,
+          paddingVertical: 18,
+          paddingHorizontal: 14,
+          fontSize: 16,
+          fontFamily: fonts.regular,
+          color: colors.text,
+        }}
+      />
+      {secureTextEntry && onTogglePasswordVisibility && (
+        <TouchableOpacity 
+          onPress={onTogglePasswordVisibility}
+          style={{ paddingHorizontal: 16 }}
+        >
+          <MaterialIcons 
+            name={showPassword ? "visibility-off" : "visibility"} 
+            size={22} 
+            color={colors.textTertiary} 
+          />
+        </TouchableOpacity>
+      )}
+    </View>
+    {error && (
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+        <MaterialIcons name="error-outline" size={14} color={colors.error} />
+        <Text style={{
+          fontSize: 12,
+          fontFamily: fonts.medium,
+          color: colors.error,
+          marginLeft: 6,
+        }}>
+          {error}
+        </Text>
+      </View>
+    )}
+  </View>
+);
 
 const SignUpScreen = () => {
   const router = useRouter();
   const { theme } = useTheme();
+  const { signIn } = useAuth();
   const isDark = theme === 'dark';
   const colors = getColors(isDark);
   const shadowStyles = getShadows(isDark);
@@ -39,94 +140,30 @@ const SignUpScreen = () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Note: Sign up functionality would be implemented when backend supports it
-    setTimeout(() => {
-      setIsSubmitting(false);
-      Alert.alert(
-        "Account Creation", 
-        "Account creation is currently managed by administrators. Please contact your system administrator.",
-        [{ text: "OK", onPress: () => router.replace('/') }]
-      );
-    }, 1500);
-  };
+    try {
+      const trimmedName = name.trim();
+      const [firstName, ...rest] = trimmedName.split(' ');
+      const lastName = rest.join(' ') || firstName;
 
-  const InputField = ({ 
-    label, 
-    value, 
-    onChangeText, 
-    placeholder,
-    icon,
-    error,
-    secureTextEntry = false,
-    keyboardType = 'default',
-    autoCapitalize = 'none',
-  }: any) => (
-    <View style={{ marginBottom: 20 }}>
-      <Text style={{
-        fontSize: 14,
-        fontFamily: fonts.semiBold,
-        color: colors.text,
-        marginBottom: 10,
-      }}>
-        {label}
-      </Text>
-      <View style={[{
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: colors.surfaceSecondary,
-        borderRadius: 14,
-        borderWidth: 2,
-        borderColor: error ? colors.error : value ? colors.primary : colors.border,
-        overflow: 'hidden',
-      }, value && !error && shadowStyles.sm]}>
-        <View style={{ paddingLeft: 16 }}>
-          <MaterialIcons name={icon} size={22} color={error ? colors.error : value ? colors.primary : colors.textTertiary} />
-        </View>
-        <TextInput
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor={colors.textTertiary}
-          secureTextEntry={secureTextEntry && !showPassword}
-          keyboardType={keyboardType}
-          autoCapitalize={autoCapitalize}
-          style={{
-            flex: 1,
-            paddingVertical: 18,
-            paddingHorizontal: 14,
-            fontSize: 16,
-            fontFamily: fonts.regular,
-            color: colors.text,
-          }}
-        />
-        {secureTextEntry && (
-          <TouchableOpacity 
-            onPress={() => setShowPassword(!showPassword)}
-            style={{ paddingHorizontal: 16 }}
-          >
-            <MaterialIcons 
-              name={showPassword ? "visibility-off" : "visibility"} 
-              size={22} 
-              color={colors.textTertiary} 
-            />
-          </TouchableOpacity>
-        )}
-      </View>
-      {error && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-          <MaterialIcons name="error-outline" size={14} color={colors.error} />
-          <Text style={{
-            fontSize: 12,
-            fontFamily: fonts.medium,
-            color: colors.error,
-            marginLeft: 6,
-          }}>
-            {error}
-          </Text>
-        </View>
-      )}
-    </View>
-  );
+      await registerUser({
+        firstName,
+        lastName,
+        email: email.trim(),
+        password,
+      });
+
+      // After successful account creation, sign in with the same credentials
+      await signIn(email.trim(), password);
+      router.replace('/home');
+    } catch (error: any) {
+      Alert.alert(
+        'Sign Up Failed',
+        error?.message || 'Unable to create account. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -199,45 +236,57 @@ const SignUpScreen = () => {
             borderWidth: 1,
             borderColor: colors.border,
           }, shadowStyles.xl]}>
-            <InputField
-              label="Full Name"
-              value={name}
-              onChangeText={setName}
-              placeholder="Enter your full name"
-              icon="person"
-              error={errors.name}
-              autoCapitalize="words"
-            />
+            {renderInputField({
+              label: 'Full Name',
+              value: name,
+              onChangeText: setName,
+              placeholder: 'Enter your full name',
+              icon: 'person',
+              error: errors.name,
+              autoCapitalize: 'words',
+              colors,
+              shadowStyles,
+            })}
 
-            <InputField
-              label="Email Address"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="therapist@example.com"
-              icon="email"
-              error={errors.email}
-              keyboardType="email-address"
-            />
+            {renderInputField({
+              label: 'Email Address',
+              value: email,
+              onChangeText: setEmail,
+              placeholder: 'therapist@example.com',
+              icon: 'email',
+              error: errors.email,
+              keyboardType: 'email-address',
+              colors,
+              shadowStyles,
+            })}
 
-            <InputField
-              label="Password"
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Create a secure password"
-              icon="lock"
-              error={errors.password}
-              secureTextEntry
-            />
+            {renderInputField({
+              label: 'Password',
+              value: password,
+              onChangeText: setPassword,
+              placeholder: 'Create a secure password',
+              icon: 'lock',
+              error: errors.password,
+              secureTextEntry: true,
+              colors,
+              shadowStyles,
+              showPassword,
+              onTogglePasswordVisibility: () => setShowPassword(prev => !prev),
+            })}
 
-            <InputField
-              label="Confirm Password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Re-enter your password"
-              icon="lock-outline"
-              error={errors.confirmPassword}
-              secureTextEntry
-            />
+            {renderInputField({
+              label: 'Confirm Password',
+              value: confirmPassword,
+              onChangeText: setConfirmPassword,
+              placeholder: 'Re-enter your password',
+              icon: 'lock-outline',
+              error: errors.confirmPassword,
+              secureTextEntry: true,
+              colors,
+              shadowStyles,
+              showPassword,
+              onTogglePasswordVisibility: () => setShowPassword(prev => !prev),
+            })}
 
             {/* Submit Button */}
             <TouchableOpacity
@@ -292,37 +341,6 @@ const SignUpScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Info Note */}
-          <View style={[{
-            marginTop: 32,
-            backgroundColor: colors.warningBg,
-            borderRadius: 16,
-            padding: 18,
-            flexDirection: 'row',
-            alignItems: 'flex-start',
-            borderWidth: 1,
-            borderColor: `${colors.warning}30`,
-          }, shadowStyles.sm]}>
-            <MaterialIcons name="info-outline" size={22} color={colors.warning} style={{ marginTop: 2 }} />
-            <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={{
-                fontSize: 14,
-                fontFamily: fonts.semiBold,
-                color: colors.warning,
-                marginBottom: 6,
-              }}>
-                Administrator Access Required
-              </Text>
-              <Text style={{
-                fontSize: 13,
-                fontFamily: fonts.regular,
-                color: isDark ? colors.textSecondary : '#78350F',
-                lineHeight: 20,
-              }}>
-                New accounts require administrator approval. Contact your system administrator for access.
-              </Text>
-            </View>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

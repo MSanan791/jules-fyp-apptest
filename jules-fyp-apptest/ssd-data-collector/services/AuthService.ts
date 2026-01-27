@@ -13,13 +13,42 @@ interface User {
     [key: string]: any;
 }
 
-interface LoginResponse {
+interface AuthResponse {
     token?: string;
     user?: User;
     message?: string;
 }
 
-export const login = async (email: string, password: string): Promise<LoginResponse> => {
+interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  licenseNumber?: string;
+}
+
+const persistAuthResponse = async (data: AuthResponse) => {
+  // Save the token and user on the device
+  if (Platform.OS === 'web') {
+    if (typeof window !== 'undefined') {
+      if (data.token) {
+        localStorage.setItem('userToken', data.token);
+      }
+      if (data.user) {
+        localStorage.setItem('userData', JSON.stringify(data.user));
+      }
+    }
+  } else {
+    if (data.token) {
+      await SecureStore.setItemAsync('userToken', data.token);
+    }
+    if (data.user) {
+      await SecureStore.setItemAsync('userData', JSON.stringify(data.user));
+    }
+  }
+};
+
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
     try {
         const trimmedEmail = email.trim();
         const trimmedPassword = password.trim();
@@ -27,7 +56,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
         const response = await fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: trimmedEmail, password: trimmedPassword }),
+            body: JSON.stringify({ email: trimmedEmail, password: trimmedPassword } as LoginRequest),
         });
 
         // Check if response is ok before parsing JSON
@@ -43,33 +72,40 @@ export const login = async (email: string, password: string): Promise<LoginRespo
             throw new Error(errorMessage);
         }
 
-        const data: LoginResponse = await response.json();
-
-        // Save the token on the device
-        if (Platform.OS === 'web') {
-            // For web, use localStorage
-            if (typeof window !== 'undefined') {
-                if (data.token) {
-                    localStorage.setItem('userToken', data.token);
-                }
-                if (data.user) {
-                    localStorage.setItem('userData', JSON.stringify(data.user));
-                }
-            }
-        } else {
-            // For mobile, use SecureStore
-            if (data.token) {
-                await SecureStore.setItemAsync('userToken', data.token);
-            }
-            if (data.user) {
-                await SecureStore.setItemAsync('userData', JSON.stringify(data.user));
-            }
-        }
-        
+        const data: AuthResponse = await response.json();
+        await persistAuthResponse(data);
         return data;
     } catch (error) {
         throw error;
     }
+};
+
+export const register = async (payload: RegisterRequest): Promise<AuthResponse> => {
+  try {
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      let errorMessage = `Registration failed with status ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+        console.error('Registration failed:', response.status, errorData);
+      } catch (e) {
+        console.error('Registration failed - could not parse error response:', response.status);
+      }
+      throw new Error(errorMessage);
+    }
+
+    const data: AuthResponse = await response.json();
+    await persistAuthResponse(data);
+    return data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const logout = async () => {
