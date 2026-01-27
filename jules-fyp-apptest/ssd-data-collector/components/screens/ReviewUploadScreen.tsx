@@ -316,7 +316,7 @@ const ReviewUploadScreen = () => {
   const skippedRecordings = recordings.filter(r => r.status === 'skipped');
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'left', 'right']}>
       {/* Header */}
       <View style={[{
         flexDirection: 'row',
@@ -345,7 +345,9 @@ const ReviewUploadScreen = () => {
           fontSize: 18,
           fontFamily: fonts.bold,
           color: colors.text,
-        }}>
+          flex: 1,
+          textAlign: 'center',
+        }} numberOfLines={1}>
           Review Session
         </Text>
         <View style={{ width: 44 }} />
@@ -353,7 +355,7 @@ const ReviewUploadScreen = () => {
 
       <ScrollView 
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 20, paddingBottom: 48 }}
+        contentContainerStyle={{ padding: 20, paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Summary Card */}
@@ -534,14 +536,20 @@ const ReviewUploadScreen = () => {
                     }}
                   >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <Text style={{
-                        fontSize: 14,
-                        fontFamily: fonts.semiBold,
-                        color: colors.text,
-                      }}>
+                      <Text 
+                        style={{
+                          fontSize: 14,
+                          fontFamily: fonts.semiBold,
+                          color: colors.text,
+                          flex: 1,
+                          marginRight: 8,
+                        }}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
                         {protocol.name}
                       </Text>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                         <Text style={{
                           fontSize: 13,
                           fontFamily: fonts.medium,
@@ -635,13 +643,15 @@ const ReviewUploadScreen = () => {
       </ScrollView>
 
       {/* Bottom Actions */}
-      <View style={[{
-        padding: 20,
-        borderTopWidth: 1,
-        borderTopColor: colors.border,
-        backgroundColor: colors.surface,
-        gap: 12,
-      }, shadowStyles.lg]}>
+      <SafeAreaView edges={['bottom']} style={{ backgroundColor: colors.surface }}>
+        <View style={[{
+          padding: 20,
+          paddingTop: 16,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          backgroundColor: colors.surface,
+          gap: 12,
+        }, shadowStyles.lg]}>
         <TouchableOpacity
           onPress={handleUpload}
           disabled={uploading || stats.recorded === 0}
@@ -692,14 +702,19 @@ const ReviewUploadScreen = () => {
               borderWidth: 1,
               borderColor: colors.border,
               opacity: uploading ? 0.5 : 1,
+              minWidth: 0,
             }}
           >
             <MaterialIcons name="arrow-back" size={20} color={colors.text} />
-            <Text style={{
-              color: colors.text,
-              fontSize: 15,
-              fontFamily: fonts.semiBold,
-            }}>
+            <Text 
+              style={{
+                color: colors.text,
+                fontSize: 15,
+                fontFamily: fonts.semiBold,
+              }}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               Continue Recording
             </Text>
           </TouchableOpacity>
@@ -722,7 +737,8 @@ const ReviewUploadScreen = () => {
             <MaterialIcons name="delete-outline" size={22} color={colors.error} />
           </TouchableOpacity>
         </View>
-      </View>
+        </View>
+      </SafeAreaView>
     </SafeAreaView>
   );
 };
