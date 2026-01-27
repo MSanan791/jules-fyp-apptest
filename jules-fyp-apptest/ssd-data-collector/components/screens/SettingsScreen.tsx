@@ -133,7 +133,7 @@ const SettingsScreen = () => {
   };
 
   const handleContactSupport = () => {
-    const email = 'support@ssdcollector.app';
+    const email = 'trazzaq744@gmail.com';
     const subject = 'Support Request - SSD Data Collector';
     const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
     
