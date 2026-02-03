@@ -1,51 +1,52 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { login as apiLogin, logout as apiLogout, getToken } from '../services/AuthService';
-import { useRouter, useSegments } from 'expo-router';
 
-interface User {
-  token: string;
+interface AuthContextType {
+  user: { token: string } | null;
+  isLoading: boolean;
+  signIn: (email: string, password: string) => Promise<boolean>; // Changed to return boolean
+  signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<any>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ token: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-  const segments = useSegments();
 
-  // Check if user is already logged in on app start
   useEffect(() => {
     const checkLogin = async () => {
-      const token = await getToken();
-      if (token) {
-        setUser({ token }); // In real app, validate token or fetch user profile here
+      try {
+        const token = await getToken();
+        if (token) {
+          setUser({ token });
+        }
+      } catch (error) {
+        console.error("Session restoration failed:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     checkLogin();
   }, []);
 
-  // Protected Route Logic: Redirect if not logged in
-  useEffect(() => {
-    if (isLoading) return;
-
-    // Simple check: If no user, stay on Login. If user, go Home.
-    // Note: Since your current structure is flat, we'll handle redirect in LoginScreen manually for now.
-  }, [user, isLoading]);
-
-const signIn = async (email: string, password: string): Promise<void> => {
-    const data = await apiLogin(email, password);
-    if (data.user && data.token) {
-      setUser({ token: data.token });
-      router.replace('/home'); // Redirect to Home after login
+  const signIn = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const data = await apiLogin(email, password);
+      if (data.user && data.token) {
+        setUser({ token: data.token });
+        return true; // Login Success
+      }
+      return false; // Login Failed (Backend rejected)
+    } catch (error) {
+      console.error("Login error:", error);
+      return false; // Login Failed (Network/Crash)
     }
-};
+  };
 
   const signOut = async () => {
     await apiLogout();
     setUser(null);
-    router.replace('/'); // Redirect to Login
   };
 
   return (
@@ -55,4 +56,10 @@ const signIn = async (email: string, password: string): Promise<void> => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
