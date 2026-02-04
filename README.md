@@ -21,7 +21,7 @@ A React Native (Expo) mobile application designed for Speech Therapists (SLPs) t
 
 For detailed documentation on all available endpoints, request bodies, and response examples, please refer to the full API Documentation:
 
-👉 **[View Complete API Documentation](./API_DOCUMENTATION.md)**
+👉 **[View Complete API Documentation](./API_docs.md)**
 
 ### Quick Overview
 * **Auth:** `POST /api/auth/login`
