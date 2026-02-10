@@ -1,49 +1,86 @@
 import * as SecureStore from 'expo-secure-store'; // Securely store token
 import { Platform } from 'react-native';
 
-// ⚠️ REPLACE WITH YOUR PC IP
+// ⚠️ REPLACE WITH YOUR PC IP (Currently set to your Production IP)
 const API_URL = 'http://20.255.56.194:3000/api/auth'; 
 
 interface LoginRequest {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 
 interface User {
-    [key: string]: any;
+  [key: string]: any;
 }
 
 interface LoginResponse {
-    token?: string;
-    user?: User;
-    message?: string;
+  token?: string;
+  user?: User;
+  message?: string;
 }
 
-export const login = async (email: string, password: string): Promise<LoginResponse> => {
-    try {
-        const response = await fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
+interface SignupRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  licenseNumber: string;
+}
 
-        const data: LoginResponse = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Login failed');
+// 👇 NEW: Signup Function
+export const signup = async (userData: SignupRequest) => {
+  try {
+    const response = await fetch(`${API_URL}/signup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: userData.password,
+        licenseNumber: userData.licenseNumber
+      }),
+    });
 
-        // Securely save the token on the device
-        if (Platform.OS !== 'web') {
-            if (data.token) {
-                await SecureStore.setItemAsync('userToken', data.token);
-            }
-            if (data.user) {
-                await SecureStore.setItemAsync('userData', JSON.stringify(data.user));
-            }
-        }
-        
-        return data;
-    } catch (error) {
-        throw error;
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Signup failed');
     }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
+  try {
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data: LoginResponse = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Login failed');
+
+    // Securely save the token on the device
+    if (Platform.OS !== 'web') {
+      if (data.token) {
+        await SecureStore.setItemAsync('userToken', data.token);
+      }
+      if (data.user) {
+        await SecureStore.setItemAsync('userData', JSON.stringify(data.user));
+      }
+    }
+    
+    return data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const logout = async () => {

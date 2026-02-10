@@ -1,14 +1,19 @@
-// Replace with your PC's IP
+// services/PatientService.ts
+
 const API_URL = 'http://20.255.56.194:3000/api'; 
 
+// 1. Update Interface to match your EXISTING Backend Model exactly
 export interface Patient {
   id: number;
+  therapist_id: number;     // Matches your model
   name: string;
   age: number;
   gender: string;
-  primary_language: string;
-  initial_ssd_type: string;
+  primary_language: string; // Matches your model
+  initial_ssd_type: string; // Matches your model
+  initial_notes?: string;   // Matches your model (marked optional)
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface SessionSummary {
@@ -20,9 +25,8 @@ export interface SessionSummary {
   recordings?: any[];
 }
 
-// Helper to ensure headers are always clean
 const getHeaders = (token: string) => ({
-  'Authorization': `Bearer ${token.trim()}`, // 🛡️ FIX: Added .trim() here
+  'Authorization': `Bearer ${token.trim()}`,
   'Content-Type': 'application/json'
 });
 
@@ -44,7 +48,8 @@ export const getPatients = async (token: string): Promise<Patient[]> => {
   }
 };
 
-export const createPatient = async (patientData: Omit<Patient, 'id'>, token: string) => {
+// We use Omit to exclude fields the backend generates automatically
+export const createPatient = async (patientData: Omit<Patient, 'id' | 'therapist_id' | 'createdAt' | 'updatedAt'>, token: string) => {
   try {
     const response = await fetch(`${API_URL}/patients`, {
       method: 'POST',
