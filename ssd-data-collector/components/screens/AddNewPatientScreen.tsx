@@ -9,6 +9,7 @@ import {
   ActivityIndicator, 
   KeyboardAvoidingView, 
   Platform,
+  Keyboard,
   StatusBar,
   KeyboardTypeOptions
 } from 'react-native';
@@ -158,24 +159,30 @@ const AddNewPatientScreen = () => {
               
               {/* Gender Segmented Control */}
               <View className="flex-1">
-                <Text className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-2 ml-1">Gender</Text>
-                <View className="flex-row h-14 bg-slate-100 dark:bg-slate-900 rounded-xl p-1 border border-slate-200 dark:border-slate-700">
-                  {['Male', 'Female'].map((g) => (
-                    <TouchableOpacity
-                      key={g}
-                      className={`flex-1 items-center justify-center rounded-lg ${
-                        gender === g ? 'bg-white dark:bg-slate-700 shadow-sm' : 'bg-transparent'
-                      }`}
-                      onPress={() => setGender(g)}
-                    >
-                      <Text className={`text-sm font-bold ${
-                        gender === g ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'
-                      }`}>
-                        {g}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+              <Text className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-2 ml-1">Gender</Text>
+              <View className="flex-row h-14 bg-slate-100 dark:bg-slate-900 rounded-xl p-1 border border-slate-200 dark:border-slate-700">
+                {['Male', 'Female'].map((g) => (
+                  <TouchableOpacity
+                    key={g}
+                    className={`flex-1 items-center justify-center rounded-lg ${
+                      gender === g ? 'bg-white dark:bg-slate-700 shadow-sm' : 'bg-transparent'
+                    }`}
+                    onPress={() => {
+                      // 1. Dismiss keyboard first to prevent layout collision
+                      Keyboard.dismiss(); 
+                      // 2. Wrap state update in a slight delay if the crash persists (optional, but safer)
+                      requestAnimationFrame(() => {
+                        setGender(g);
+                      });
+                    }}
+                  >
+                    <Text className={`text-sm font-bold ${
+                      gender === g ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'
+                    }`}>
+                      {g}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
 
