@@ -5,6 +5,27 @@ import { useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { signup } from '../../services/AuthService';
 
+
+ const InputField = ({ label, value, onChangeText, placeholder, 
+    secureTextEntry, keyboardType, error, autoCapitalize = "none" }: any) => (
+    <View className="mb-4">
+      <Text className="text-slate-700 dark:text-slate-300 font-medium mb-1.5 ml-1">{label}</Text>
+      <TextInput
+        className={`w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-3 text-slate-900 dark:text-white text-base 
+          ${error ? 'border-red-400 bg-red-50 dark:bg-red-900/20' :
+             'border-slate-200 dark:border-slate-700'}`}
+        placeholder={placeholder}
+        placeholderTextColor="#94a3b8"
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+      />
+      {error && <Text className="text-red-500 text-xs ml-1 mt-1">{error}</Text>}
+    </View>
+  );
+
 const SignUpScreen = () => {
   const router = useRouter();
   
@@ -50,22 +71,7 @@ const SignUpScreen = () => {
     }
   };
 
-  const InputField = ({ label, value, onChangeText, placeholder, secureTextEntry, keyboardType, error, autoCapitalize = "none" }: any) => (
-    <View className="mb-4">
-      <Text className="text-slate-700 dark:text-slate-300 font-medium mb-1.5 ml-1">{label}</Text>
-      <TextInput
-        className={`w-full bg-slate-50 dark:bg-slate-800 border rounded-xl px-4 py-3 text-slate-900 dark:text-white text-base ${error ? 'border-red-400 bg-red-50 dark:bg-red-900/20' : 'border-slate-200 dark:border-slate-700'}`}
-        placeholder={placeholder}
-        placeholderTextColor="#94a3b8"
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-        autoCapitalize={autoCapitalize}
-      />
-      {error && <Text className="text-red-500 text-xs ml-1 mt-1">{error}</Text>}
-    </View>
-  );
+ 
 
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-slate-900">
