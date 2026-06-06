@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons'; 
 import { useRouter } from 'expo-router';
+import { createPatient } from '../../services/PatientService';
+import { getToken } from '../../services/AuthService';
 // import { createPatient } from '../../services/PatientService';
 // import { getToken } from '../../services/AuthService';
 
@@ -60,37 +62,50 @@ const AddNewPatientScreen = () => {
   const diagnosisOptions = ['Phonological Disorder', 'Articulation Disorder', 'Apraxia', 'Other'];
 
   const handleSave = async () => {
-    if (!name.trim()) {
-      Alert.alert("Required", "Please enter Patient Name.");
-      return;
-    }
-    if (!age.trim() || isNaN(Number(age))) {
-      Alert.alert("Required", "Please enter a valid numeric Age.");
-      return;
+  // 1. Validation
+  if (!name.trim()) {
+    Alert.alert("Required", "Please enter Patient Name.");
+    return;
+  }
+  if (!age.trim() || isNaN(Number(age))) {
+    Alert.alert("Required", "Please enter a valid numeric Age.");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    // 2. Retrieve the local Auth Token
+    const token = await getToken();
+    if (!token) {
+      throw new Error("No authentication token found. Please log in again.");
     }
 
-    setIsSubmitting(true);
-    try {
-      // MOCK SAVE - Replace with your actual auth/api calls
-      // const token = await getToken();
-      // if (!token) throw new Error("Authentication token not found. Please login again.");
-      // const payload = { ... };
-      // await createPatient(payload, token);
+    // 3. Map frontend state to Backend Model keys
+    const payload = {
+      name: name,
+      age: parseInt(age),
+      gender: gender,
+      primary_language: language,  // Matches Backend Model
+      initial_ssd_type: diagnosis,  // Matches Backend Model
+      initial_notes: notes          // Matches Backend Model
+    };
 
-      setTimeout(() => {
-        Alert.alert("Success", "Patient created successfully!", [
-          { text: "View Profile", onPress: () => router.replace("/home") }
-        ]);
-        setIsSubmitting(false);
-      }, 1000);
-      
-    } catch (error) {
-      console.log("Save Error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Could not save patient. Check connection.";
-      Alert.alert("Error", errorMessage);
-      setIsSubmitting(false);
-    }
-  };
+    // 4. Fire the actual request
+    const result = await createPatient(payload, token);
+
+    Alert.alert("Success", "Patient created successfully!", [
+      { text: "OK", onPress: () => router.replace("/home") }
+    ]);
+
+  } catch (error) {
+    console.error("Save Error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Could not connect to server.";
+    Alert.alert("Network Error", errorMessage);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <View className="flex-1 bg-slate-50 dark:bg-slate-950">

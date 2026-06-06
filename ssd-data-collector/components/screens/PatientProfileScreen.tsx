@@ -13,23 +13,28 @@ const PatientProfileScreen = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
-    try {
-      const id = currentSession.patientId;
-      if (!id) return;
-      const token = await getToken();
-      if (!token) return;
-      const [pData, sData] = await Promise.all([
-        getPatientById(id as number, token),
-        getPatientSessions(id as number, token)
-      ]);
-      setPatient(pData);
-      setSessions(sData);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const id = currentSession.patientId;
+    if (!id) return;
+    const token = await getToken();
+    if (!token) return;
+
+    const [pData, sData] = await Promise.all([
+      getPatientById(id as number, token),
+      getPatientSessions(id as number, token)
+    ]);
+
+    setPatient(pData);
+    // 🛡️ FIX: Ensure sData is an array. If backend returns null/undefined/error, fallback to []
+    setSessions(Array.isArray(sData) ? sData : []); 
+    
+  } catch (error) {
+    console.error("Fetch Patient Profile Error:", error);
+    setSessions([]); // Fallback on error
+  } finally {
+    setLoading(false);
+  }
+};
 
   useFocusEffect(
     useCallback(() => {
